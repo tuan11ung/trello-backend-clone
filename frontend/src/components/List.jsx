@@ -15,9 +15,9 @@ export default function List({ list }) {
     };
 
     const colors = {
-        "Hôm nay": "bg-yellow-700/90",
-        "Tuần này": "bg-green-800/90",
-        "Sau này": "bg-black/80",
+        "Hôm nay": "from-yellow-100 to-yellow-200",
+        "Tuần này": "from-green-100 to-green-200",
+        "Sau này": "from-slate-200 to-slate-300",
     };
 
     const addCard = () => {
@@ -25,18 +25,24 @@ export default function List({ list }) {
         setCards([...cards, newCard]);
     };
 
+    // Chiều cao linh hoạt: nhỏ lúc đầu, tăng dần khi có nhiều thẻ
+    const dynamicHeight = Math.min(120 + cards.length * 60, 500);
+    // bắt đầu 120px, mỗi thẻ thêm ~60px, giới hạn 500px
+
     return (
         <div
             ref={setNodeRef}
-            style={style}
+            style={{ ...style, height: `${dynamicHeight}px` }}
             {...attributes}
             {...listeners}
-            className={`min-w-[260px] ${colors[list.title] || "bg-slate-800/90"} text-white rounded-xl p-4 shadow-md backdrop-blur-sm flex flex-col gap-3 transition-transform hover:-translate-y-1`}
+            className={`min-w-[260px] bg-gradient-to-br ${
+                colors[list.title] || "from-white to-slate-50"
+            } rounded-2xl p-4 shadow-lg backdrop-blur-md flex flex-col gap-3 transition-transform hover:-translate-y-1 hover:shadow-xl`}
         >
-            <h2 className="font-semibold text-lg mb-1">{list.title}</h2>
+            <h2 className="font-semibold text-lg mb-1 text-slate-800">{list.title}</h2>
 
             <SortableContext items={cards.map((c) => c.id)} strategy={rectSortingStrategy}>
-                <div className="flex flex-col gap-2 flex-1">
+                <div className="flex flex-col gap-2 flex-1 overflow-y-auto">
                     {cards.map((card) => (
                         <Card key={card.id} card={card} />
                     ))}
@@ -45,10 +51,11 @@ export default function List({ list }) {
 
             <button
                 onClick={addCard}
-                className="text-sm text-yellow-300 hover:text-white mt-2 text-left font-medium"
+                className="text-sm text-indigo-600 hover:text-indigo-800 mt-2 text-left font-medium transition-colors"
             >
                 + Thêm thẻ
             </button>
         </div>
     );
 }
+

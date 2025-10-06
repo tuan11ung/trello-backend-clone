@@ -105,19 +105,25 @@ export default function Board() {
             onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
         >
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-                <SortableContext items={lists.map((l) => l.id)} strategy={rectSortingStrategy}>
-                    {lists.map((list) => (
-                        <List key={list.id} list={list} />
-                    ))}
-                </SortableContext>
-
-                <button
-                    onClick={addList}
-                    className="min-w-[260px] h-fit bg-white/60 hover:bg-white/80 text-slate-700 rounded-xl p-4 border border-dashed border-slate-300 text-left font-medium shadow-sm"
+            <div className="relative w-full h-screen bg-slate-100">
+                {/* vùng chứa các danh sách có thể cuộn ngang */}
+                <div
+                    className="absolute bottom-0 left-0 right-0 flex gap-6 overflow-x-auto overflow-y-hidden pb-6 px-4 scrollbar-thin scrollbar-thumb-slate-400 scrollbar-track-slate-200"
+                    style={{ height: "calc(100vh - 100px)" }} // thay đổi nếu có header
                 >
-                    + Thêm danh sách
-                </button>
+                    <SortableContext items={lists.map((l) => l.id)} strategy={rectSortingStrategy}>
+                        {lists.map((list) => (
+                            <List key={list.id} list={list} />
+                        ))}
+                    </SortableContext>
+
+                    <button
+                        onClick={addList}
+                        className="min-w-[260px] h-fit bg-white/70 hover:bg-white/90 text-slate-700 rounded-2xl p-4 border border-dashed border-slate-400 text-left font-medium shadow-md hover:shadow-lg transition-all"
+                    >
+                        + Thêm danh sách
+                    </button>
+                </div>
             </div>
         </DndContext>
     );

@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 body {
     font-family: "Inter", sans-serif;
@@ -14,4 +12,21 @@ body {
 .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
+}
+/* Hiển thị thanh cuộn ngang ở dưới cùng */
+::-webkit-scrollbar {
+    height: 8px; /* độ dày thanh cuộn ngang */
+}
+
+::-webkit-scrollbar-track {
+    background: #e2e8f0; /* slate-200 */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #94a3b8; /* slate-400 */
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #64748b; /* slate-500 khi hover */
 }
