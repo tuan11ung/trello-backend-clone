@@ -30,11 +30,13 @@ export default function List({ list, updateCards, onCardClick }) {
     }, [list.cards]);
 
     const handleAddCard = () => {
-        console.log(`[List Check Add Card.`);
         if (newCardTitle.trim()) {
             const newCard = {
                 id: Date.now().toString(),
                 title: newCardTitle.trim(),
+                color: "bg-white",
+                attachments: [],
+                comments: [],
             };
             const newCards = [...cards, newCard];
             setCards(newCards);
@@ -43,11 +45,7 @@ export default function List({ list, updateCards, onCardClick }) {
             setNewCardTitle("");
             setIsAdding(false);
 
-            setTimeout(() => {
-                if (containerRef.current) {
-                    containerRef.current.scrollTop = containerRef.current.scrollHeight;
-                }
-            }, 0);
+            // Bỏ cuộn tự động vì List sẽ tự mở rộng
         }
     };
 
@@ -59,13 +57,15 @@ export default function List({ list, updateCards, onCardClick }) {
         }
     };
 
-    const dynamicHeight = Math.min(120 + cards.length * 60, 500);
+    // LOẠI BỎ: dynamicHeight
 
     return (
         <div
             ref={setNodeRef}
-            style={{ ...style, height: `${dynamicHeight}px` }}
-            className={`min-w-[260px] bg-gradient-to-br ${
+            // THAY ĐỔI: Bỏ style height: `${dynamicHeight}px`
+            style={style}
+            // THAY ĐỔI: Bỏ h-screen/max-h-screen hoặc các ràng buộc chiều cao khác
+            className={`min-w-[260px] h-fit bg-gradient-to-br ${ // Dùng h-fit để chiều cao co lại theo nội dung
                 colors[list.title] || "from-white to-slate-50"
             } rounded-2xl p-4 shadow-lg backdrop-blur-md flex flex-col gap-3 transition-transform hover:-translate-y-1 hover:shadow-xl`}
         >
@@ -80,8 +80,8 @@ export default function List({ list, updateCards, onCardClick }) {
             <SortableContext items={cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
                 <div
                     ref={containerRef}
-                    className="flex flex-col gap-2 flex-1 overflow-y-auto scrollbar-hide"
-                    style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                    // THAY ĐỔI: Xóa overflow-y-auto và flex-1. Thẻ div sẽ tự mở rộng.
+                    className="flex flex-col gap-2"
                 >
                     {cards.map((card) => (
                         <Card key={card.id} card={card} onClick={() => onCardClick(card)} />
