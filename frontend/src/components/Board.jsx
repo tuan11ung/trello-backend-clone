@@ -98,6 +98,12 @@ export default function Board() {
         ]);
     };
 
+    const updateCards = (listId, newCards) => {
+        setLists((prev) =>
+            prev.map((list) => (list.id === listId ? { ...list, cards: newCards } : list))
+        );
+    };
+
     return (
         <DndContext
             sensors={sensors}
@@ -106,14 +112,13 @@ export default function Board() {
             onDragEnd={handleDragEnd}
         >
             <div className="relative w-full h-screen bg-slate-100">
-                {/* vùng chứa các danh sách có thể cuộn ngang */}
                 <div
                     className="absolute bottom-0 left-0 right-0 flex gap-6 overflow-x-auto overflow-y-hidden pb-6 px-4 scrollbar-thin scrollbar-thumb-slate-400 scrollbar-track-slate-200"
-                    style={{ height: "calc(100vh - 100px)" }} // thay đổi nếu có header
+                    style={{ height: "calc(100vh - 100px)" }}
                 >
                     <SortableContext items={lists.map((l) => l.id)} strategy={rectSortingStrategy}>
                         {lists.map((list) => (
-                            <List key={list.id} list={list} />
+                            <List key={list.id} list={list} updateCards={updateCards} />
                         ))}
                     </SortableContext>
 
