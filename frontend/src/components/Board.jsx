@@ -6,8 +6,13 @@ import { SortableContext, rectSortingStrategy, arrayMove } from "@dnd-kit/sortab
 
 export default function Board() {
     const [lists, setLists] = useState([
-        { id: "1", title: "Hôm nay", cards: [{ id: "c1", title: "Thiết kế trang chính" }] },
-        { id: "2", title: "Tuần này", cards: [{ id: "c2", title: "Tạo API" }] },
+        { id: "1", title: "Hôm nay", cards: [
+                // Thêm trường 'attachments' (mặc định là mảng rỗng)
+                { id: "c1", title: "Thiết kế trang chính", color: "bg-white", attachments: [] }
+            ] },
+        { id: "2", title: "Tuần này", cards: [
+                { id: "c2", title: "Tạo API", color: "bg-white", attachments: [] }
+            ] },
         { id: "3", title: "Sau này", cards: [] },
     ]);
 

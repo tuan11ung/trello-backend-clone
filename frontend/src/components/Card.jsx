@@ -14,6 +14,8 @@ export default function Card({ card, onClick }) {
     const isOverdue = card.deadline && new Date(card.deadline) < new Date() && !card.completed;
     const hasDeadline = card.deadline;
 
+    const cardBackgroundColor = card.color || "bg-white";
+
     const handleClick = (e) => {
         console.log(`[Card ${card.id}] Card clicked, opening modal.`);
         onClick();
@@ -26,7 +28,9 @@ export default function Card({ card, onClick }) {
             style={style}
             {...attributes}
             onClick={handleClick}
-            className="bg-gradient-to-r from-white/90 to-slate-50 text-slate-700 border border-slate-200 rounded-xl p-3 shadow-sm hover:shadow-md hover:-translate-y-[1px] transition-all cursor-pointer group"
+           // className="bg-gradient-to-r from-white/90 to-slate-50 text-slate-700 border border-slate-200 rounded-xl p-3 shadow-sm hover:shadow-md hover:-translate-y-[1px] transition-all cursor-pointer group"
+
+            className={`${cardBackgroundColor} text-slate-700 border border-slate-200 rounded-xl p-3 shadow-sm hover:shadow-md hover:-translate-y-[1px] transition-all cursor-pointer group`}
         >
             <div className="flex items-start justify-between gap-2">
                 <span className={card.completed ? "line-through text-slate-400" : ""}>
