@@ -1,124 +1,85 @@
 import { useState } from "react";
 import List from "./List";
-import {
-    DndContext,
-    closestCorners,
-    PointerSensor,
-    useSensor,
-    useSensors,
-} from "@dnd-kit/core";
-import {
-    arrayMove,
-    SortableContext,
-    rectSortingStrategy,
-} from "@dnd-kit/sortable";
+import CardDetailModel from "./CardDetailModel.jsx";
+import { DndContext, closestCorners, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { SortableContext, rectSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 
 export default function Board() {
     const [lists, setLists] = useState([
-        {
-            id: "1",
-            title: "Hôm nay",
-            cards: [
-                { id: "c1", title: "Thiết kế trang chính" },
-                { id: "c2", title: "Tạo API cho project" },
-            ],
-        },
-        {
-            id: "2",
-            title: "Tuần này",
-            cards: [
-                { id: "c3", title: "Xây dựng form đăng nhập" },
-                { id: "c4", title: "Kết nối database" },
-            ],
-        },
-        {
-            id: "3",
-            title: "Sau này",
-            cards: [{ id: "c5", title: "Triển khai lên server" }],
-        },
+        { id: "1", title: "Hôm nay", cards: [{ id: "c1", title: "Thiết kế trang chính" }] },
+        { id: "2", title: "Tuần này", cards: [{ id: "c2", title: "Tạo API" }] },
+        { id: "3", title: "Sau này", cards: [] },
     ]);
+
+    const [selectedCard, setSelectedCard] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const sensors = useSensors(useSensor(PointerSensor));
 
-    const findContainer = (id) => {
-        if (lists.find((list) => list.id === id)) return id;
-        return lists.find((list) => list.cards.some((card) => card.id === id))?.id;
+    const handleCardClick = (card) => {
+        console.log(`[Board] Card clicked: ${card.title} (${card.id})`);
+        setSelectedCard(card);
+        setIsModalOpen(true);
     };
 
-    const handleDragOver = (event) => {
-        const { active, over } = event;
-        if (!over) return;
+    const handleCloseModal = () => {
+        console.log("[Board] Closing modal.");
+        setIsModalOpen(false);
+        setSelectedCard(null);
+    };
 
-        const activeContainer = findContainer(active.id);
-        const overContainer = findContainer(over.id);
-        if (!activeContainer || !overContainer || activeContainer === overContainer) return;
+    const handleUpdateCard = (updatedCard) => {
+        setLists(prev =>
+            prev.map(list => ({
+                ...list,
+                cards: list.cards.map(c => (c.id === updatedCard.id ? updatedCard : c)),
+            }))
+        );
+    };
 
-        setLists((prev) => {
-            const activeList = prev.find((l) => l.id === activeContainer);
-            const overList = prev.find((l) => l.id === overContainer);
-            const activeCard = activeList.cards.find((c) => c.id === active.id);
+    const updateCards = (listId, newCards) => {
+        setLists(prev => prev.map(l => (l.id === listId ? { ...l, cards: newCards } : l)));
+    };
 
-            return prev.map((list) => {
-                if (list.id === activeContainer) {
-                    return { ...list, cards: list.cards.filter((c) => c.id !== active.id) };
-                }
-                if (list.id === overContainer) {
-                    return { ...list, cards: [...list.cards, activeCard] };
-                }
-                return list;
-            });
-        });
+    const addList = () => {
+        setLists([...lists, { id: Date.now().toString(), title: "Danh sách mới", cards: [] }]);
     };
 
     const handleDragEnd = (event) => {
         const { active, over } = event;
         if (!over) return;
 
-        const activeContainer = findContainer(active.id);
-        const overContainer = findContainer(over.id);
+        const oldListIndex = lists.findIndex(l => l.cards.some(c => c.id === active.id));
+        const newListIndex = lists.findIndex(l => l.cards.some(c => c.id === over.id));
+        if (oldListIndex === -1 || newListIndex === -1) return;
 
-        if (activeContainer === overContainer) {
-            const list = lists.find((l) => l.id === activeContainer);
-            const oldIndex = list.cards.findIndex((c) => c.id === active.id);
-            const newIndex = list.cards.findIndex((c) => c.id === over.id);
-            setLists((prev) =>
-                prev.map((l) =>
-                    l.id === activeContainer
-                        ? { ...l, cards: arrayMove(l.cards, oldIndex, newIndex) }
-                        : l
-                )
-            );
+        const oldList = lists[oldListIndex];
+        const newList = lists[newListIndex];
+        const card = oldList.cards.find(c => c.id === active.id);
+
+        if (oldList.id === newList.id) {
+            const oldIndex = oldList.cards.findIndex(c => c.id === active.id);
+            const newIndex = oldList.cards.findIndex(c => c.id === over.id);
+            const newCards = arrayMove(oldList.cards, oldIndex, newIndex);
+            updateCards(oldList.id, newCards);
+        } else {
+            updateCards(oldList.id, oldList.cards.filter(c => c.id !== active.id));
+            updateCards(newList.id, [...newList.cards, card]);
         }
     };
 
-    const addList = () => {
-        setLists([
-            ...lists,
-            { id: Date.now().toString(), title: `Danh sách mới`, cards: [] },
-        ]);
-    };
-
-    const updateCards = (listId, newCards) => {
-        setLists((prev) =>
-            prev.map((list) => (list.id === listId ? { ...list, cards: newCards } : list))
-        );
-    };
-
     return (
-        <DndContext
-            sensors={sensors}
-            collisionDetection={closestCorners}
-            onDragOver={handleDragOver}
-            onDragEnd={handleDragEnd}
-        >
-            <div className="relative w-full h-screen bg-slate-100">
-                <div
-                    className="absolute bottom-0 left-0 right-0 flex gap-6 overflow-x-auto overflow-y-hidden pb-6 px-4 scrollbar-thin scrollbar-thumb-slate-400 scrollbar-track-slate-200"
-                    style={{ height: "calc(100vh - 100px)" }}
-                >
-                    <SortableContext items={lists.map((l) => l.id)} strategy={rectSortingStrategy}>
-                        {lists.map((list) => (
-                            <List key={list.id} list={list} updateCards={updateCards} />
+        <>
+            <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
+                <div className="relative w-full h-screen bg-slate-100 p-4 overflow-x-auto flex gap-6">
+                    <SortableContext items={lists.map(l => l.id)} strategy={rectSortingStrategy}>
+                        {lists.map(list => (
+                            <List
+                                key={list.id}
+                                list={list}
+                                updateCards={updateCards}
+                                onCardClick={handleCardClick}
+                            />
                         ))}
                     </SortableContext>
 
@@ -129,7 +90,16 @@ export default function Board() {
                         + Thêm danh sách
                     </button>
                 </div>
-            </div>
-        </DndContext>
+            </DndContext>
+
+            {selectedCard && (
+                <CardDetailModel
+                    card={selectedCard}
+                    isOpen={isModalOpen}
+                    onClose={handleCloseModal}
+                    onUpdate={handleUpdateCard}
+                />
+            )}
+        </>
     );
 }
