@@ -1,10 +1,5 @@
-/**
- * Updated by trungquandev.com's author on August 17 2023
- * YouTube: https://youtube.com/@trungquandev
- * "A bit of fragrance clings to the hand that gives flowers!"
- */
-
 import express from 'express'
+import exitHook from 'async-exit-hook'
 import { CONNECT_DB, GET_DB } from '~/config/mongodb.js'
 
 const START_SERVER = () => {
@@ -21,7 +16,11 @@ const START_SERVER = () => {
 
   app.listen(port, hostname, () => {
     // eslint-disable-next-line no-console
-    console.log(`3. Hello Trung Quan Dev, Backend server is running successfully at http://${hostname}:${port}/`)
+    console.log(`3. Backend server is running successfully at http://${hostname}:${port}/`)
+  })
+
+  exitHook(() => {
+    console.log('Exit app')
   })
 }
 
@@ -46,5 +45,5 @@ CONNECT_DB()
   .then( () => START_SERVER())
   .catch( error => {
     console.error(error)
-    process.exit(1)
+    process.exit(0)
   })

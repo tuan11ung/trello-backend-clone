@@ -1,10 +1,4 @@
 /**
- * Updated by trungquandev.com's author on August 17 2023
- * YouTube: https://youtube.com/@trungquandev
- * "A bit of fragrance clings to the hand that gives flowers!"
- */
-
-/**
  * ntuanhung82
  * LvJL9ztKLTiRvtPb
  */
@@ -12,10 +6,10 @@
 const MONGODB_URI = 'mongodb+srv://ntuanhung82:LvJL9ztKLTiRvtPb@cluster0-tuan11ungdev.vyjlqrn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0-Tuan11ungDev'
 const DATABASE_NAME = 'trello-fullstack'
 
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import { MongoClient, ServerApiVersion } from 'mongodb'
 
 //Khoi tao 1 obj trelloDatabaseInstance ban dau la null (vi chua ket noi)
-let trelloDatabaseInstance = null;
+let trelloDatabaseInstance = null
 
 //Khoi tao 1 obj mongoClientInstance de connect toi MongoDB
 const mongoClientInstance = new MongoClient(MONGODB_URI, {
@@ -30,7 +24,7 @@ const mongoClientInstance = new MongoClient(MONGODB_URI, {
 //connect toi MongoDB va tra ve obj database neu thanh cong
 export const CONNECT_DB = async () => {
   //Goi ket noi toi MongoDB Atlas voi URI da khai bao trong than cuar mongoClientInstance
-  await mongoClientInstance.connect();
+  await mongoClientInstance.connect()
 
   //Ket noi thanh cong thi lay ra DB theo ten va gan nguoc no vao bien toan cuc trelloDatabaseInstance
   trelloDatabaseInstance = mongoClientInstance.db(DATABASE_NAME)
