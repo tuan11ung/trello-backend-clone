@@ -1,34 +1,35 @@
 import { useState } from "react";
 import List from "./List";
-import CardDetailModel from "./CardDetailModel.jsx";
+import CardDetailModal from "./CardDetailModel";
 import { DndContext, closestCorners, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, rectSortingStrategy, arrayMove } from "@dnd-kit/sortable";
+import InboxPanel from "./InboxPanel";
 
 export default function Board() {
     const [lists, setLists] = useState([
         { id: "1", title: "Hôm nay", cards: [
-                // Thêm trường 'attachments' (mặc định là mảng rỗng)
-                { id: "c1", title: "Thiết kế trang chính", color: "bg-white", attachments: [] }
+                { id: "c1", title: "Thiết kế trang chính", color: "bg-white", description: "", deadline: "", completed: false, attachments: [], comments: [] }
             ] },
         { id: "2", title: "Tuần này", cards: [
-                { id: "c2", title: "Tạo API", color: "bg-white", attachments: [] }
+                { id: "c2", title: "Tạo API", color: "bg-white", description: "", deadline: "", completed: false, attachments: [], comments: [] }
             ] },
         { id: "3", title: "Sau này", cards: [] },
     ]);
 
     const [selectedCard, setSelectedCard] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isInboxOpen, setIsInboxOpen] = useState(true);
+
+    const toggleInbox = () => setIsInboxOpen(prev => !prev);
 
     const sensors = useSensors(useSensor(PointerSensor));
 
     const handleCardClick = (card) => {
-        console.log(`[Board] Card clicked: ${card.title} (${card.id})`);
         setSelectedCard(card);
         setIsModalOpen(true);
     };
 
     const handleCloseModal = () => {
-        console.log("[Board] Closing modal.");
         setIsModalOpen(false);
         setSelectedCard(null);
     };
@@ -76,35 +77,72 @@ export default function Board() {
     return (
         <>
             <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
-                <div className="relative w-full h-screen bg-slate-100 p-4 overflow-x-auto flex gap-6">
-                    <SortableContext items={lists.map(l => l.id)} strategy={rectSortingStrategy}>
-                        {lists.map(list => (
-                            <List
-                                key={list.id}
-                                list={list}
-                                updateCards={updateCards}
-                                onCardClick={handleCardClick}
-                            />
-                        ))}
-                    </SortableContext>
 
-                    <button
-                        onClick={addList}
-                        className="min-w-[260px] h-fit bg-white/70 hover:bg-white/90 text-slate-700 rounded-2xl p-4 border border-dashed border-slate-400 text-left font-medium shadow-md hover:shadow-lg transition-all"
+                {/* Board Layout Container: Giữ h-screen (100vh) ở đây */}
+                <div
+                    className={`relative w-full h-screen grid ${ // H-SCREEN TẠO RA 100% CHIỀU CAO
+                        isInboxOpen
+                            ? 'grid-cols-[300px_1fr]'
+                            : 'grid-cols-1'
+                    }`}
+                >
+
+                    {/* 1. INBOX PANEL */}
+                    {isInboxOpen && (
+                        <InboxPanel
+                            onClose={toggleInbox}
+                            lists={lists}
+                        />
+                    )}
+
+                    {/* 2. MAIN BOARD - KHU VỰC CẦN CUỘN NGANG */}
+                    <div
+                        // THAY ĐỔI QUAN TRỌNG:
+                        // 1. Dùng h-full để chiếm trọn ô grid.
+                        // 2. Padding p-4 làm nội dung tràn ra, nên chúng ta cần đảm bảo
+                        //    chiều cao của List bên trong không gây cuộn dọc.
+                        //    Tuy nhiên, nếu bạn muốn scrollbar ngang ở cuối màn hình,
+                        //    thì h-full và overflow-x-auto là đúng.
+                        className={`p-4 overflow-x-auto flex gap-6 h-full`} // H-FULL GIẢI QUYẾT OVERFLOW-Y
+                        style={{ background: 'linear-gradient(135deg, #3b006c 0%, #1e004d 50%, #0c0033 100%)' }}
                     >
-                        + Thêm danh sách
-                    </button>
+                        <SortableContext items={lists.map(l => l.id)} strategy={rectSortingStrategy}>
+                            {lists.map(list => (
+                                <List
+                                    key={list.id}
+                                    list={list}
+                                    updateCards={updateCards}
+                                    onCardClick={handleCardClick}
+                                />
+                            ))}
+                        </SortableContext>
+
+                        <button
+                            onClick={addList}
+                            className="min-w-[260px] h-fit bg-white/10 hover:bg-white/20 text-white rounded-2xl p-4 border border-dashed border-white/40 text-left font-medium shadow-md hover:shadow-lg transition-all"
+                        >
+                            + Thêm danh sách
+                        </button>
+                    </div>
                 </div>
             </DndContext>
 
             {selectedCard && (
-                <CardDetailModel
+                <CardDetailModal
                     card={selectedCard}
                     isOpen={isModalOpen}
                     onClose={handleCloseModal}
                     onUpdate={handleUpdateCard}
                 />
             )}
+
+            <button
+                onClick={toggleInbox}
+                className="fixed bottom-4 left-4 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 z-50"
+                title={isInboxOpen ? "Đóng Inbox" : "Mở Inbox"}
+            >
+                {isInboxOpen ? "⬅️" : "✉️"}
+            </button>
         </>
     );
 }

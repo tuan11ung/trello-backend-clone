@@ -30,3 +30,11 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #64748b; /* slate-500 khi hover */
 }
+
+html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    /* Dùng overflow-hidden nếu bạn muốn cuộn Board bên trong thay vì cuộn body */
+    /* overflow: hidden; */
+}
