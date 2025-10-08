@@ -1,6 +1,8 @@
 import express from 'express'
 import exitHook from 'async-exit-hook'
-import { CONNECT_DB, GET_DB } from '~/config/mongodb.js'
+import 'dotenv/config'
+import { CONNECT_DB, GET_DB, CLOSE_DB } from '~/config/mongodb.js'
+import { APIs_V1 } from '~/routes/v1'
 
 const START_SERVER = () => {
   const app = express()
@@ -8,19 +10,20 @@ const START_SERVER = () => {
   const hostname = 'localhost'
   const port = 8017
 
-  app.get('/', async (req, res) => {
-    console.log(await GET_DB().listCollections().toArray())
-
-    res.end('<h1>Hello World!</h1>')
-  })
+  app.use('/v1', APIs_V1)
 
   app.listen(port, hostname, () => {
     // eslint-disable-next-line no-console
     console.log(`3. Backend server is running successfully at http://${hostname}:${port}/`)
   })
 
+  /**
+   * thuc hien tac vu clean up truoc khi dung server
+   */
   exitHook(() => {
-    console.log('Exit app')
+    console.log('4. Disconnecting from MongoDB')
+    CLOSE_DB()
+    console.log('5. Disconnected')
   })
 }
 
