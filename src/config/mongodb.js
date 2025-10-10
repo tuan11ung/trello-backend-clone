@@ -3,10 +3,11 @@
  * LvJL9ztKLTiRvtPb
  */
 
-const MONGODB_URI = 'mongodb+srv://ntuanhung82:LvJL9ztKLTiRvtPb@cluster0-tuan11ungdev.vyjlqrn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0-Tuan11ungDev'
-const DATABASE_NAME = 'trello-fullstack'
+const MONGODB_URI = process.env.MONGODB_URI
+const DATABASE_NAME = process.env.DATABASE_NAME
 
 import { MongoClient, ServerApiVersion } from 'mongodb'
+import 'dotenv/config'
 
 //Khoi tao 1 obj trelloDatabaseInstance ban dau la null (vi chua ket noi)
 let trelloDatabaseInstance = null
@@ -31,10 +32,13 @@ export const CONNECT_DB = async () => {
 
 }
 
-
-//Function GET_DB(ko phai async) co nhiem vu export ra cai Trello Database Instance sau khi da connect thanh cong toi MongoDB de chung ta su dung o nhieu noi khac nhau trong code
+//Function GET_DB(ko phai async) co nhiem vu export ra cai TrelloDatabaseInstance sau khi da connect thanh cong toi MongoDB de su dung o nhieu noi khac nhau trong code
 //Luu y: dam bao chi goi GET_DB sau khi da goi CONNECT_DB thanh cong
 export const GET_DB = () => {
   if (!trelloDatabaseInstance) throw new Error('Must connect to database first!')
   return trelloDatabaseInstance
+}
+
+export const CLOSE_DB = async () => {
+  await mongoClientInstance.close()
 }
