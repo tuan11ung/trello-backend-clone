@@ -1,22 +1,40 @@
 import Joi from "joi";
 import { StatusCodes } from "http-status-codes";
 
+/**
+ * Note: Mac dinh khong can phai custom message o phia BE vi de cho FE validate va custom message
+ * BE chi can validate de DAM BAO DU LIEU CHUAN XAC, va tra ve message mac dinh tu thu vien la duoc
+ * IMPORTANT: Viec validate du lieu bat buoc phai co o BE vi day la diem cuoi de luu tru du lieu vao database
+ * trim() phai di kem voi strict()
+ */
+
 const createNew = 
     async (req, res, next) => {
         const correctCondition = Joi.object({
-            title: Joi.string().required().min(3).max(50).trim().strict(),
-            description: Joi.string().required().min(3).max(256).trim().strict(),
+            title: Joi
+                .string()
+                .required()
+                .min(3)
+                .max(50)
+                .trim()
+                .strict(),
+            description: Joi
+                .string()
+                .required()
+                .min(3)
+                .max(256)
+                .trim()
+                .strict(),
         })
         try {
             console.log('req.body:', req.body)
 
-            await correctCondition.validateAsync(req.body, {abortEarly: false })
-
-            // next()
-            res.status(StatusCodes.CREATED).json({ message: 'API creates new board'})
+            //set abortEarly: false de truong hop co nhieu loi validation thi tra ve tat ca
+            await correctCondition.validateAsync(req.body, { abortEarly: false })
+            //validate du lieu xong thi gui request di sang controller
+            next()
         } catch (error) {
             console.log(error)
-            // console.log(new Error(error))
             res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
                 errors: new Error(error).message
             })
