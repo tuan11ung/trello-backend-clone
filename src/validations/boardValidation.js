@@ -1,5 +1,6 @@
 import Joi from "joi";
 import { StatusCodes } from "http-status-codes";
+import ApiError from "~/utils/ApiError";
 
 /**
  * Note: Mac dinh khong can phai custom message o phia BE vi de cho FE validate va custom message
@@ -27,17 +28,14 @@ const createNew =
                 .strict(),
         })
         try {
-            console.log('req.body:', req.body)
+            // console.log('req.body:', req.body)
 
             //set abortEarly: false de truong hop co nhieu loi validation thi tra ve tat ca
             await correctCondition.validateAsync(req.body, { abortEarly: false })
             //validate du lieu xong thi gui request di sang controller
             next()
         } catch (error) {
-            console.log(error)
-            res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-                errors: new Error(error).message
-            })
+            next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
         }
     }
 
